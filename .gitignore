@@ -2,3 +2,5 @@ venv/*
 venv/
 *.bin
 .vscode/
+sonoff-switch.service
+config.yml
