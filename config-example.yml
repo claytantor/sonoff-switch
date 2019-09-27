@@ -1,2 +1,9 @@
 devices:
-  living-room: 192.168.5.59
+  living-room: 
+    ip: 192.168.5.59
+    schedule:
+      - time: 19:15
+        command: Power%20on
+      - time: 23:30
+        command: Power%20off
+
