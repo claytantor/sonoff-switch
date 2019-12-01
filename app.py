@@ -5,12 +5,45 @@ import time
 import argparse
 import yaml
 
+from flashlexiot.sdk import FlashlexSDK
+
 # def job():
 #     print("I'm working...")
 #     r = requests.get('http://192.168.5.59/cm?cmnd=Power%20TOGGLE')
 #     # /cm?cmnd=Power%20TOGGLE
 #     # /cm?cmnd=Power%20off'
 #     # /cm?cmnd=Power%20on'
+
+
+def flashlex_job(config):
+
+    lookup = {
+        "on": "Power%20on",
+        "off": "Power%20off",
+        "toggle": "Power%20TOGGLE"
+    }
+
+    sdk = FlashlexSDK(config)
+    records = sdk.getSubscribedMessages()
+
+    # process new messages
+    for record in records:
+        print("record", record)
+        print("payload message", record['message']['payload']['message'])
+
+        payload_message = record['message']['payload']['message']
+
+        ## find the ip address
+        #result = list(filter(lambda x: (x % 13 == 0), my_list))
+        result = list(filter(lambda x: (x['name'] == payload_message['device']), config['devices']))
+
+        
+        for device in result:
+            ## find the command
+            r = requests.get('http://{0}/cm?cmnd={1}'.format(device['ip'], lookup[payload_message['value']]))
+
+        sdk.removeMessageFromStore(record)
+
 
 def sonoff_job(ip_addr, sonoff_command):
     print("setting {0} to {1}".format(ip_addr, sonoff_command))
@@ -34,12 +67,16 @@ def main(argv):
     args = parser.parse_args()
     config = loadConfig(args.config)
 
+    #schedule flashlex to accept commands 
+    schedule.every(10).seconds.do(flashlex_job, config=config)
+
     print("starting sonoff scheduler app.")
-    lr = config['devices']['living-room']
-    for schedule_item in lr['schedule']:
-        print(schedule_item)
-        schedule.every().day.at(schedule_item['time']).do(sonoff_job, 
-            ip_addr=config['devices']['living-room']['ip'], sonoff_command=schedule_item['command'])
+    for device in config['devices']: 
+        print(device)
+        for schedule_item in device['schedule']:
+            schedule.every().day.at(schedule_item['time']).do(sonoff_job, 
+                ip_addr=device['ip'], sonoff_command=schedule_item['command'])
+    
 
     while True:
         schedule.run_pending()

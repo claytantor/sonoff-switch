@@ -1,13 +1,12 @@
-  
 [Unit]
-Description=flashlex
+Description=sonoff
 After=multi-user.target
 
 [Service]
 ExecStart={{dir}}/venv/bin/python -u {{dir}}/app.py --config {{dir}}/config.yml
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=flashlex
+SyslogIdentifier=sonoff
 Restart=always
 User=root
 

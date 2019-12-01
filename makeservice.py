@@ -12,7 +12,6 @@ def loadTemplate(templateFile):
     return data
 
 def main(argv):
-    print("make assymetric flashlex token.")
 
     # Read in command-line parameters
     parser = argparse.ArgumentParser()
