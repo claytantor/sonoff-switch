@@ -7,13 +7,6 @@ import yaml
 
 from flashlexiot.sdk import FlashlexSDK
 
-# def job():
-#     print("I'm working...")
-#     r = requests.get('http://192.168.5.59/cm?cmnd=Power%20TOGGLE')
-#     # /cm?cmnd=Power%20TOGGLE
-#     # /cm?cmnd=Power%20off'
-#     # /cm?cmnd=Power%20on'
-
 
 def flashlex_job(config):
 
@@ -28,13 +21,12 @@ def flashlex_job(config):
 
     # process new messages
     for record in records:
-        print("record", record)
-        print("payload message", record['message']['payload']['message'])
+        #print("record", record)
+        #print("payload message", record['message']['payload']['message'])
 
         payload_message = record['message']['payload']['message']
 
         ## find the ip address
-        #result = list(filter(lambda x: (x % 13 == 0), my_list))
         result = list(filter(lambda x: (x['name'] == payload_message['device']), config['devices']))
 
         
@@ -72,7 +64,7 @@ def main(argv):
 
     print("starting sonoff scheduler app.")
     for device in config['devices']: 
-        print(device)
+        #print(device)
         for schedule_item in device['schedule']:
             schedule.every().day.at(schedule_item['time']).do(sonoff_job, 
                 ip_addr=device['ip'], sonoff_command=schedule_item['command'])
